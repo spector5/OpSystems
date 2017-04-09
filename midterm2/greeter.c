@@ -18,6 +18,7 @@ void end ()
 		printf("Error with shmdt: %d\n", errno);
 		exit(1);
 	}
+	// clear memory
 	if (shmctl(id, IPC_RMID, 0) == -1)
 	{
 		printf("Error with shmctl: %d\n", errno);

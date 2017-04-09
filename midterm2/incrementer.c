@@ -8,6 +8,7 @@ int id;
 
 void release()
 {
+	// clear semephore
 	semctl(id, 0, IPC_RMID);
 	exit(0);	
 }
@@ -18,17 +19,20 @@ void main (int argc, char* argv[])
 	key_t key;
 	int val;
 
+	// get key
 	if ((key = ftok(file, 0)) == -1)
 	{
 		printf("Error with ftok: %d\n", errno);
 		exit(1);
 	}
+	// get semephore id
 	if ((id = semget(key, 1, 0666 | IPC_CREAT)) == -1)
 	{
 		printf("Error with semget: %d\n", errno);
 		exit(1);
 	}
 
+	// set up handler
 	struct sigaction act, oact;
 	act.sa_handler = release;
 	sigemptyset(&act.sa_mask);
@@ -42,6 +46,7 @@ void main (int argc, char* argv[])
 
 	while(1)
 	{
+		// get semephore value
 		if ((val = semctl(id, 0, GETVAL)) == -1)
 		{
 			printf("Error with getval: %d\n", errno);
@@ -53,6 +58,7 @@ void main (int argc, char* argv[])
 		op[0].sem_op = 1;
 		op[0].sem_flg = 0;
 
+		// increment semephore
 		if ((val = semop(id, op, 1)) == -1)
 		{
 			printf("Error with increment: %d\n", errno);
